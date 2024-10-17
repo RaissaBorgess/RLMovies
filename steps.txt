@@ -1,0 +1,34 @@
+npx create-expo-app@latest RLMovies --template blank
+
+cd RLMoviescd RLMovies
+
+Instalação de pacotes:
+// React Navigation
+npm install @react-navigation/native
+npm install @react-navigation/native-stack
+npx expo install react-native-screens react-native-safe-area-context
+npx expo install react-native-gesture-handler
+
+//Tailwind - Nativewind
+npm install Nativewind
+npm install --save-dev tailwindcss@3.3.2
+npx tailwindcss init 
+
+// Carousel
+npm install react-native-reanimated-carousel
+npx expo install react-native-reanimated
+
+// HeroIcons
+npm install react-native-heroicons 
+
+// Gradiente
+npm install expo-linear-gradient
+
+// Barra Progresso
+npm install react-native-progress
+
+//Fetch API - Axios
+npm install axios 
+
+//Sombras
+npm i react-native-shadow-2
