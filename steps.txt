@@ -31,4 +31,4 @@ npm install react-native-progress
 npm install axios 
 
 //Sombras
-npm i react-native-shadow-2
+npm i react-native-shadow-2npc
