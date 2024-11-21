@@ -1,0 +1,2444 @@
+npx create-expo-app@latest GMovies --template blank
+
+cd GMovies
+
+// React Navigation
+npm install @react-navigation/native
+npm install @react-navigation/native-stack
+npx expo install react-native-screens react-native-safe-area-context
+npx expo install react-native-gesture-handler
+
+// Tailwind - NativeWind
+npm install nativewind
+npm install --save-dev tailwindcss@3.3.2
+npx tailwindcss init
+
+// Carousel
+npm i react-native-reanimated-carousel
+npx expo install react-native-reanimated
+
+// React native heroicons
+npm i react-native-heroicons
+
+// Gradiente
+npm i expo-linear-gradient
+
+// Barra Progresso
+npm i react-native-progress
+
+// Fetch API - Axios
+npm i axios
+
+// Criar uma conta no site themoviedb.org
+
+
+/ Arquivo tailwind.config.js
+module.exports = {
+  content: [
+    "./App.{js,jsx,ts,tsx}",
+    "./screens/**/*.{js,jsx,ts,tsx}",
+    "./components/**/*.{js,jsx,ts,tsx}"
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+
+
+// Arquivo babel.config.js:
+module.exports = function (api) {
+  api.cache(true);
+  return {
+    presets: ["babel-preset-expo"],
+    plugins: ["nativewind/babel", "react-native-reanimated/plugin"],
+  };
+};
+
+
+// Criar a pasta screens
+ 
+
+// Criar na pasta screens o arquivo HomeScreen.js:
+// rnf
+
+
+// Criar a pasta navigation e dentro o arquivo appNavigation.js
+//rnf
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import HomeScreen from '../screens/HomeScreen';
+
+const Stack = createNativeStackNavigator();
+
+export default function AppNavigation() {
+	return (
+		<NavigationContainer>
+			<Stack.Navigator>
+				<Stack.Screen name='Home' options={{headerShown: false}} component={HomeScreen} />
+			</Stack.Navigator>
+		</NavigationContainer>
+	)
+}
+
+
+// Alterar o arquivo App.js:
+import 'react-native-gesture-handler';
+import AppNavigation from "./navigation/appNavigation";
+
+export default function App() {
+  return (
+    <AppNavigation />
+  );
+}
+
+
+// Testar
+
+
+// Criar uma pasta com theme e dentro um arquivo index.js:
+export const theme = {
+	background: '#eab308',
+	text: '#eab308',
+}
+
+export const styles = {
+	text: { color: theme.text },
+	background: { backgroundColor: theme.background }
+}
+
+
+// Voltar a editar o arquivo HomeScreen:
+import React from 'react'
+import { View, Text, Platform, TouchableOpacity, ScrollView } from 'react-native'
+import { StatusBar } from 'expo-status-bar'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { Bars3BottomLeftIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline';
+import { styles } from '../theme';
+
+const ios = Platform.OS == "ios";
+
+export default function HomeScreen() {
+  return (
+    <View className="flex-1 bg-neutral-800">
+      <SafeAreaView className={ios ? "-mb-2" : "mb-3"}>
+        <StatusBar style="light" />
+        <View className="flex-row justify-between items-center mx-4 mt-2">
+          <TouchableOpacity>
+            <Bars3BottomLeftIcon size={30} strokeWidth={2} color="white"/>
+          </TouchableOpacity>
+          <Text className="text-white text-3xl font-bold">
+            <Text style={styles.text}>GM</Text>ovies
+          </Text>
+          <TouchableOpacity>
+            <MagnifyingGlassIcon size={30} strokeWidth={2} color="white" />
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+
+      <ScrollView
+        showVerticalScrollIndicator={false}
+        contentContainerStyles={{paddingBottom: 10}}
+      >
+
+      </ScrollView>
+      
+    </View>
+  )
+}
+
+
+// Criar uma pasta components e dentro um arquivo trendingMovies.js
+// rnf - mudar o nome da função para TrendingMovies
+import { View, Text, Dimensions } from 'react-native'
+
+
+var { width, height } = Dimensions.get('window');
+
+export default function TrendingMovies({data}) {
+	return (
+		<View className="mb-8">
+			<Text className="text-white text-xl mx-4">Em alta</Text>
+
+		</View>
+	)
+}
+
+
+// Alterar o HomeScreen
+import React, { useState } from 'react'
+import { View, Text, Platform, TouchableOpacity, ScrollView } from 'react-native'
+import { StatusBar } from 'expo-status-bar'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { Bars3BottomLeftIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline';
+import { styles } from '../theme';
+import TrendingMovies from '../components/trendingMovies';
+
+const ios = Platform.OS == "ios";
+
+export default function HomeScreen() {
+  const [trending, setTrending] = useState([1,2,3]);
+  return (
+    <View className="flex-1 bg-neutral-800">
+      <SafeAreaView className={ios ? "-mb-2" : "mb-3"}>
+        <StatusBar style="light" />
+        <View className="flex-row justify-between items-center mx-4 mt-2">
+          <TouchableOpacity>
+            <Bars3BottomLeftIcon size={30} strokeWidth={2} color="white"/>
+          </TouchableOpacity>
+          <Text className="text-white text-3xl font-bold">
+            <Text style={styles.text}>GM</Text>ovies
+          </Text>
+          <TouchableOpacity>
+            <MagnifyingGlassIcon size={30} strokeWidth={2} color="white" />
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{paddingBottom: 10}}
+      >
+        <TrendingMovies data={trending} />
+      </ScrollView>
+
+    </View>
+  )
+}
+
+
+// Alterar o trendingMovies
+import React from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { View, Text, Dimensions, TouchableWithoutFeedback, Image } from 'react-native'
+import Carousel from 'react-native-reanimated-carousel';
+
+var { width, height } = Dimensions.get('window');
+
+export default function TrendingMovies({ data }) {
+  const navigation = useNavigation();
+  const handleClick = (item) => {
+    navigation.navigate('Movie', item);
+  }
+
+  return (
+    <View className="mb-8">
+      <Text className="text-white text-xl mx-4 my-3">Em alta</Text>
+      <Carousel
+        loop
+        width={width * 0.6}
+        height={height * 0.4}
+        autoPlay={false}
+        data={data}
+        // scrollAnimationDuration={5000}
+        renderItem={({ item }) => <MovieCard item={item} handleClick={handleClick} />}
+        mode="parallax"
+        modeConfig={{
+          parallaxScrollingScale: 1,
+          parallaxScrollingOffset: 1,
+          parallaxAdjacentItemScale: 0.9,
+        }}
+        style={{ width: width, justifyContent: 'center' }}
+      />
+    </View>
+  )
+}
+
+const MovieCard = ({item, handleClick}) => {
+  return (
+    <TouchableWithoutFeedback onPress={() => handleClick(item)}>
+      <Image
+        source={require('../assets/images/moviePoster1.jpg')}
+        style={{ width: '100%', height: '100%' }}
+        className="rounded-2xl"
+      />
+    </TouchableWithoutFeedback>
+  )
+}
+
+
+// Testar
+
+
+// Criar na pasta components o arquivo movieList.js
+// rnf
+
+
+// Alterar o HomeScreen
+import React, { useState } from 'react'
+import { View, Text, Platform, TouchableOpacity, ScrollView } from 'react-native'
+import { StatusBar } from 'expo-status-bar'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { Bars3BottomLeftIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline';
+import { styles } from '../theme';
+import TrendingMovies from '../components/trendingMovies';
+import MovieList from '../components/movieList';
+
+const ios = Platform.OS == "ios";
+
+export default function HomeScreen() {
+  const [trending, setTrending] = useState([1,2,3]);
+  const [upcoming, setUpcoming] = useState([1,2,3]);
+  const [topRated, setTopRated] = useState([1,2,3]);
+  return (
+    <View className="flex-1 bg-neutral-800">
+      <SafeAreaView className={ios ? "-mb-2" : "mb-3"}>
+        <StatusBar style="light" />
+        <View className="flex-row justify-between items-center mx-4 mt-2">
+          <TouchableOpacity>
+            <Bars3BottomLeftIcon size={30} strokeWidth={2} color="white"/>
+          </TouchableOpacity>
+          <Text className="text-white text-3xl font-bold">
+            <Text style={styles.text}>GM</Text>ovies
+          </Text>
+          <TouchableOpacity>
+            <MagnifyingGlassIcon size={30} strokeWidth={2} color="white" />
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{paddingBottom: 10}}
+      >
+        <TrendingMovies data={trending} />
+
+        <MovieList title="Próximos lançamentos" data={upcoming} />
+		
+      </ScrollView>
+
+    </View>
+  )
+}
+
+
+Alterar o MovieList
+import React from 'react'
+import { View, Text, TouchableOpacity, ScrollView, TouchableWithoutFeedback, Image, Dimensions } from 'react-native'
+import { styles } from '../theme'
+import { useNavigation } from '@react-navigation/native';
+
+var { width, height } = Dimensions.get('window');
+
+export default function MovieList({ title, data }) {
+  let movieName = "Joker: Folie à Deux";
+  const navigation = useNavigation();
+  return (
+    <View className="mb-9 space-y-4">
+      <View className="mx-4 flex-row justify-between items-center">
+        <Text className="text-white text-xl">{title}</Text>
+        <TouchableOpacity>
+          <Text style={styles.text} className="text-lg">Ver todos</Text>
+        </TouchableOpacity>
+      </View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 15 }}
+      >
+        {
+          data.map((item, index) => {
+            return (
+              <TouchableWithoutFeedback
+                key={index}
+                onPress={() => navigation.navigate('Movie', item)}
+              >
+                <View className="space-y-1 mr-4">
+                  <Image
+                    source={require('../assets/images/moviePoster2.jpg')}
+                    className="rounded-2xl"
+                    style={{ width: width * 0.35, height: height * 0.26 }}
+                  />
+                  <Text className="text-neutral-300 ml-1 text-center">
+                    {
+                      movieName.length > 14 ? movieName.slice(0, 14) + '...' : movieName
+                    }
+                  </Text>
+                </View>
+              </TouchableWithoutFeedback>
+            )
+          })
+        }
+      </ScrollView>
+    </View>
+  )
+}
+
+
+
+// Adicionar na HomeScreen
+  <MovieList title="Melhor Avaliados" data={topRated} />
+
+
+// Criar em screens MovieScreen.js
+// rnf
+
+
+// Alterar o appNavigation
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import HomeScreen from '../screens/HomeScreen';
+import MovieScreen from '../screens/MovieScreen';
+
+const Stack = createNativeStackNavigator();
+
+export default function AppNavigation() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name='Home' options={{ headerShown: false }} component={HomeScreen} />
+        <Stack.Screen name='Movie' options={{ headerShown: false }} component={MovieScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  )
+}
+
+
+// Alterar MovieScreen
+import React, { useEffect, useState } from 'react'
+import { View, Text, ScrollView, TouchableOpacity, Dimensions, Image } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { useNavigation, useRoute } from '@react-navigation/native'
+import { ChevronLeftIcon } from 'react-native-heroicons/outline';
+import { HeartIcon } from 'react-native-heroicons/solid';
+import { styles, theme } from '../theme';
+import { LinearGradient } from 'expo-linear-gradient';
+
+var { width, height } = Dimensions.get('window');
+
+export default function MovieScreen() {
+  const { params: item } = useRoute();
+  const [isFavorite, toggleFavorite] = useState(false);
+  const navigation = useNavigation();
+  let movieName = "Joker: Folie à Deux";
+  useEffect(() => {
+    // call API
+  }, [item])
+
+  return (
+    <ScrollView
+      contentContainerStyle={{ paddingBottom: 20, minHeight: '100%' }}
+      className="flex-1 bg-neutral-900"
+    >
+      <View className="w-full">
+        <SafeAreaView className={"absolute z-20 w-full flex-row justify-between items-center p-4 pt-3"}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.background} className="rounded-xl p-1">
+            <ChevronLeftIcon size="28" strokeWidth={2.5} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => toggleFavorite(!isFavorite)}>
+            <HeartIcon size="36" color={isFavorite ? theme.background : "white"} />
+          </TouchableOpacity>
+        </SafeAreaView>
+        <View>
+          <Image
+            source={require('../assets/images/moviePoster2.jpg')}
+            style={{ width: width, height: height * 0.55 }}
+          />
+          <LinearGradient
+            colors={['transparent', 'rgba(23,23,23,0.8)', 'rgba(23,23,23,1)']}
+            style={{ width, height: height * 0.4 }}
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 1 }}
+            className="absolute bottom-0"
+          />
+        </View>
+      
+        <View style={{ marginTop: -(height * 0.09) }} className="space-y-3">
+          {/* Nome do Filme */}
+          <Text className="text-white text-center text-3xl font-bold tracking-wider">
+            {movieName}
+          </Text>
+
+          {/* Status, Estreia, Tempo de Duração */}
+          <Text className="text-neutral-400 font-semibold text-base text-center">
+            Lancado • 2024 • 138 min
+          </Text>
+
+          {/* Gêneros */}
+          <View className="flex-row justify-center mx-4 space-x-2">
+            <Text className="text-neutral-400 font-semibold text-base text-center">
+              Drama  •
+            </Text>
+            <Text className="text-neutral-400 font-semibold text-base text-center">
+              Crime  •
+            </Text>
+            <Text className="text-neutral-400 font-semibold text-base text-center">
+              Thriller
+            </Text>
+          </View>
+
+          {/* Sinopse */}
+          <Text className="text-neutral-400 mx-4 tracking-wide">
+            Coringa 2 se passa depois dos acontecimentos do filme de 2019, após ser iniciado um movimento popular contra a elite de Gotham City, revolução esta, que teve o Coringa como seu maior representante. Preso no hospital psiquiátrico de Arkham, ele acaba conhecendo Harleen "Lee" Quinzel (Lady Gaga). A curiosidade mútua acaba se transformando em paixão e obsessão e eles desenvolvem um relacionamento romântico e doentio. Lee e Arthur embarcam em uma desventura alucinada, fervorosa e musical pelo submundo de Gotham City, enquanto o julgamento público d'O Coringa se desenrola, impactando toda a cidade e suas próprias mentes conturbadas.
+          </Text>
+
+          {/* Elenco */}
+
+
+        </View>
+      </View>
+    </ScrollView>
+  )
+}
+
+
+// Criar na pasta components o arquivo cast.js
+// rnf
+// renomear a funcao para Cast
+
+
+// Alterar o MovieScreen
+import React, { useEffect, useState } from 'react'
+import { View, Text, ScrollView, TouchableOpacity, Dimensions, Image } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { useNavigation, useRoute } from '@react-navigation/native'
+import { ChevronLeftIcon } from 'react-native-heroicons/outline';
+import { HeartIcon } from 'react-native-heroicons/solid';
+import { styles, theme } from '../theme';
+import { LinearGradient } from 'expo-linear-gradient';
+import Cast from '../components/cast';
+
+var { width, height } = Dimensions.get('window');
+
+export default function MovieScreen() {
+  const { params: item } = useRoute();
+  const navigation = useNavigation();
+  const [isFavorite, toggleFavorite] = useState(false);
+  const [cast, setCast] = useState([1, 2, 3, 4, 5])
+  let movieName = "Joker: Folie à Deux";
+  
+  useEffect(() => {
+    // call API
+  }, [item])
+
+  return (
+    <ScrollView
+      contentContainerStyle={{ paddingBottom: 20, minHeight: '100%' }}
+      className="flex-1 bg-neutral-900"
+    >
+      <View className="w-full">
+        <SafeAreaView className={"absolute z-20 w-full flex-row justify-between items-center p-4 pt-3"}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.background} className="rounded-xl p-1">
+            <ChevronLeftIcon size="28" strokeWidth={2.5} color="white" />
+          </TouchableOpacity>
+		  <Text className="text-white text-3xl font-bold">
+            <Text style={styles.text}>GM</Text>ovies
+          </Text>
+          <TouchableOpacity onPress={() => toggleFavorite(!isFavorite)}>
+            <HeartIcon size="36" color={isFavorite ? theme.background : "white"} />
+          </TouchableOpacity>
+        </SafeAreaView>
+        <View>
+          <Image
+            source={require('../assets/images/moviePoster2.jpg')}
+            style={{ width: width, height: height * 0.55 }}
+          />
+          <LinearGradient
+            colors={['transparent', 'rgba(23,23,23,0.8)', 'rgba(23,23,23,1)']}
+            style={{ width, height: height * 0.4 }}
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 1 }}
+            className="absolute bottom-0"
+          />
+        </View>
+      
+		  <View style={{ marginTop: -(height * 0.09) }} className="space-y-3">
+			{/* Nome do Filme */}
+			<Text className="text-white text-center text-3xl font-bold tracking-wider">
+			  {movieName}
+			</Text>
+
+			{/* Status, Estreia, Tempo de Duração */}
+			<Text className="text-neutral-400 font-semibold text-base text-center">
+			  Lancado • 2024 • 138 min
+			</Text>
+
+			{/* Gêneros */}
+			<View className="flex-row justify-center mx-4 space-x-2">
+			  <Text className="text-neutral-400 font-semibold text-base text-center">
+				Drama  •
+			  </Text>
+			  <Text className="text-neutral-400 font-semibold text-base text-center">
+				Crime  •
+			  </Text>
+			  <Text className="text-neutral-400 font-semibold text-base text-center">
+				Thriller
+			  </Text>
+			</View>
+
+			{/* Sinopse */}
+			<Text className="text-neutral-400 mx-4 tracking-wide">
+			  Coringa 2 se passa depois dos acontecimentos do filme de 2019, após ser iniciado um movimento popular contra a elite de Gotham City, revolução esta, que teve o Coringa como seu maior representante. Preso no hospital psiquiátrico de Arkham, ele acaba conhecendo Harleen "Lee" Quinzel (Lady Gaga). A curiosidade mútua acaba se transformando em paixão e obsessão e eles desenvolvem um relacionamento romântico e doentio. Lee e Arthur embarcam em uma desventura alucinada, fervorosa e musical pelo submundo de Gotham City, enquanto o julgamento público d'O Coringa se desenrola, impactando toda a cidade e suas próprias mentes conturbadas.
+			</Text>
+
+			{/* Elenco */}
+			<Cast navigation={navigation} cast={cast} />
+		  </View>
+      </View>
+    </ScrollView>
+  )
+}
+
+
+// Alterar o Cast
+import React from 'react'
+import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native'
+
+export default function Cast({ cast, navigation }) {
+  let personName = 'Joaquin Phoenix'
+  let characterName = 'Arthur Fleck'
+  return (
+    <View className="my-6">
+      <Text className="text-white text-lg mx-4 mb-5">Elenco</Text>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 15 }}
+      >
+        {
+          cast && cast.map((person, index) => {
+            return (
+              <TouchableOpacity
+                key={index}
+                className="mr-3 items-center"
+                onPress={() => navigation.navigate('Person', person)}
+              >
+                <View className="overflow-hidden rounded-full h-20 w-20 items-center border border-neutral-500">
+                  <Image className="rounded-2xl h-24 w-20"
+                    source={require('../assets/images/actor.jpg')}
+                  />
+                </View>
+                <Text className="text-white text-xs mt-1">
+                  {
+                    characterName.length > 10 ? characterName.slice(0.10) + '...' : characterName
+                  }
+                </Text>
+                <Text className="text-neutral-400 text-xs mt-1">
+                  {
+                    personName.length > 10 ? personName.slice(0.10) + '...' : personName
+                  }
+                </Text>
+              </TouchableOpacity>
+            )
+          })
+        }
+      </ScrollView>
+    </View>
+  )
+}
+
+
+// Altere o MovieScreen
+import React, { useEffect, useState } from 'react'
+import { View, Text, ScrollView, TouchableOpacity, Dimensions, Image } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { useNavigation, useRoute } from '@react-navigation/native'
+import { ChevronLeftIcon } from 'react-native-heroicons/outline';
+import { HeartIcon } from 'react-native-heroicons/solid';
+import { styles, theme } from '../theme';
+import { LinearGradient } from 'expo-linear-gradient';
+import Cast from '../components/cast';
+import MovieList from '../components/movieList';
+
+var { width, height } = Dimensions.get('window');
+
+export default function MovieScreen() {
+  const { params: item } = useRoute();
+  const navigation = useNavigation();
+  const [isFavorite, toggleFavorite] = useState(false)
+  const [cast, setCast] = useState([1, 2, 3, 4, 5])
+  const [similarMovies, setSimilarMovies] = useState([1, 2, 3, 4, 5])
+  let movieName = "Joker: Folie à Deux";
+  
+  useEffect(() => {
+    // call API
+  }, [item])
+
+  return (
+    <ScrollView
+      contentContainerStyle={{ paddingBottom: 20, minHeight: '100%' }}
+      className="flex-1 bg-neutral-900"
+    >
+      <View className="w-full">
+        <SafeAreaView className={"absolute z-20 w-full flex-row justify-between items-center p-4 pt-3"}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.background} className="rounded-xl p-1">
+            <ChevronLeftIcon size="28" strokeWidth={2.5} color="white" />
+          </TouchableOpacity>
+		  <Text className="text-white text-3xl font-bold">
+            <Text style={styles.text}>GM</Text>ovies
+          </Text>
+          <TouchableOpacity onPress={() => toggleFavorite(!isFavorite)}>
+            <HeartIcon size="36" color={isFavorite ? theme.background : "white"} />
+          </TouchableOpacity>
+        </SafeAreaView>
+        <View>
+          <Image
+            source={require('../assets/images/moviePoster2.jpg')}
+            style={{ width: width, height: height * 0.55 }}
+          />
+          <LinearGradient
+            colors={['transparent', 'rgba(23,23,23,0.8)', 'rgba(23,23,23,1)']}
+            style={{ width, height: height * 0.4 }}
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 1 }}
+            className="absolute bottom-0"
+          />
+        </View>
+      
+        <View style={{ marginTop: -(height * 0.09) }} className="space-y-3">
+			{/* Nome do Filme */}
+			<Text className="text-white text-center text-3xl font-bold tracking-wider">
+			  {movieName}
+			</Text>
+
+			{/* Status, Estreia, Tempo de Duração */}
+			<Text className="text-neutral-400 font-semibold text-base text-center">
+			  Lancado • 2024 • 138 min
+			</Text>
+
+			{/* Gêneros */}
+			<View className="flex-row justify-center mx-4 space-x-2">
+			  <Text className="text-neutral-400 font-semibold text-base text-center">
+				Drama  •
+			  </Text>
+			  <Text className="text-neutral-400 font-semibold text-base text-center">
+				Crime  •
+			  </Text>
+			  <Text className="text-neutral-400 font-semibold text-base text-center">
+				Thriller
+			  </Text>
+			</View>
+
+			{/* Sinopse */}
+			<Text className="text-neutral-400 mx-4 tracking-wide">
+			  Coringa 2 se passa depois dos acontecimentos do filme de 2019, após ser iniciado um movimento popular contra a elite de Gotham City, revolução esta, que teve o Coringa como seu maior representante. Preso no hospital psiquiátrico de Arkham, ele acaba conhecendo Harleen "Lee" Quinzel (Lady Gaga). A curiosidade mútua acaba se transformando em paixão e obsessão e eles desenvolvem um relacionamento romântico e doentio. Lee e Arthur embarcam em uma desventura alucinada, fervorosa e musical pelo submundo de Gotham City, enquanto o julgamento público d'O Coringa se desenrola, impactando toda a cidade e suas próprias mentes conturbadas.
+			</Text>
+
+			{/* Elenco */}
+			<Cast navigation={navigation} cast={cast} />
+
+			{/* Filmes Similares */}
+			<MovieList title="Filmes Similares" data={similarMovies} /> 
+		</View>
+      </View>
+    </ScrollView>
+  )
+}
+
+
+// Testar e agora esconder o Ver Todos
+
+
+// Alterar no MovieScreen a linha
+<MovieList title="Filmes Similares" hideSeeAll={true} data={similarMovies} /> 
+
+
+// Alterar no movieList 
+import React from 'react'
+import { View, Text, TouchableOpacity, ScrollView, TouchableWithoutFeedback, Image, Dimensions } from 'react-native'
+import { styles } from '../theme'
+import { useNavigation } from '@react-navigation/native';
+
+var { width, height } = Dimensions.get('window');
+
+export default function MovieList({ title, data, hideSeeAll }) {
+  let movieName = "Joker: Folie à Deux";
+  const navigation = useNavigation();
+  return (
+    <View className="mb-9 space-y-4">
+      <View className="mx-4 flex-row justify-between items-center">
+        <Text className="text-white text-xl">{title}</Text>
+        {
+          !hideSeeAll && (
+            <TouchableOpacity>
+              <Text style={styles.text} className="text-lg">Ver todos</Text>
+            </TouchableOpacity>
+          )
+        }
+      </View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 15 }}
+      >
+        {
+          data.map((item, index) => {
+            return (
+              <TouchableWithoutFeedback
+                key={index}
+                onPress={() => navigation.push('Movie', item)}
+              >
+                <View className="space-y-1 mr-4">
+                  <Image
+                    source={require('../assets/images/moviePoster2.jpg')}
+                    className="rounded-2xl"
+                    style={{ width: width * 0.35, height: height * 0.26 }}
+                  />
+                  <Text className="text-neutral-300 ml-1 text-center">
+                    {
+                      movieName.length > 14 ? movieName.slice(0, 14) + '...' : movieName
+                    }
+                  </Text>
+                </View>
+              </TouchableWithoutFeedback>
+            )
+          })
+        }
+      </ScrollView>
+    </View>
+  )
+}
+
+
+// Criar na pasta screens Person.js
+// rnf
+
+
+// Alterar o AppNavigation
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import HomeScreen from '../screens/HomeScreen';
+import MovieScreen from '../screens/MovieScreen';
+import PersonScreen from '../screens/PersonScreen';
+
+const Stack = createNativeStackNavigator();
+
+export default function AppNavigation() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name='Home' options={{ headerShown: false }} component={HomeScreen} />
+        <Stack.Screen name='Movie' options={{ headerShown: false }} component={MovieScreen} />
+        <Stack.Screen name='Person' options={{ headerShown: false }} component={PersonScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  )
+}
+
+
+// Salvar e Testar
+
+npm i react-native-shadow-2
+
+
+
+// Alterar  PersonScreen
+import React, { useEffect, useState } from 'react'
+import { View, Text, Dimensions, ScrollView, TouchableOpacity, Image } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { useNavigation, useRoute } from '@react-navigation/native'
+import { ChevronLeftIcon } from 'react-native-heroicons/outline';
+import { HeartIcon } from 'react-native-heroicons/solid';
+import { styles, theme } from '../theme';
+import { Shadow } from 'react-native-shadow-2';
+import MovieList from '../components/movieList';
+
+var { width, height } = Dimensions.get('window');
+
+export default function PersonScreen() {
+  const { params: item } = useRoute();
+  const navigation = useNavigation();
+  const [isFavorite, toggleFavorite] = useState(false)
+  const [personMovies, setPersonMovies] = useState([1,2,3,4])
+  return (
+    <ScrollView
+      contentContainerStyle={{ paddingBottom: 20, minHeight: '100%' }}
+      className="flex-1 bg-neutral-900"
+    >
+      {/* Botões de Navegação */}
+      <SafeAreaView className={"z-20 w-full flex-row justify-between items-center p-4 pt-3"}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.background} className="rounded-xl p-1">
+          <ChevronLeftIcon size="28" strokeWidth={2.5} color="white" />
+        </TouchableOpacity>
+		<Text className="text-white text-3xl font-bold">
+          <Text style={styles.text}>GM</Text>ovies
+        </Text>
+        <TouchableOpacity onPress={() => toggleFavorite(!isFavorite)}>
+          <HeartIcon size="36" color={isFavorite ? theme.background : "white"} />
+        </TouchableOpacity>
+      </SafeAreaView>
+
+      {/* Dados da Pessoa */}
+      <View>
+        <View className="flex-row justify-center">
+          <Shadow className="items-center overflow-hidden h-72 w-72 border-3 border-neutral-500" startColor='rgb(60 60 60)' distance={50}>
+              <Image 
+                style={{ height: height * 0.42, width: width * 0.70, borderRadius: 150 }}
+                source={require('../assets/images/actor.jpg')}
+              />
+          </Shadow>
+        </View>
+        <View className="mt-5">
+          <Text className="text-3xl text-white font-bold text-center">
+            Joaquin Phoenix
+          </Text>
+          <Text className="text-base text-neutral-500 text-center">
+            San Juan, Puerto Rico
+          </Text>
+        </View>
+        <View className="mx-3 p-4 mt-6 flex flex-row items-center bg-neutral-700 rounded-full">
+          <View className="basis-1/3 border-r-2 border-r-neutral-400 px-2 items-center">
+            <Text className="text-white font-semibold">Gênero</Text>
+            <Text className="text-neutral-300 text-sm">Masculino</Text>
+          </View>
+          <View className="basis-1/3 border-r-2 border-r-neutral-400 px-2 items-center">
+            <Text className="text-white font-semibold">Nascimento</Text>
+            <Text className="text-neutral-300 text-sm">28/10/1974</Text>
+          </View>
+          <View className="basis-1/3 px-2 items-center">
+            <Text className="text-white font-semibold">Popularidade</Text>
+            <Text className="text-neutral-300 text-sm">89</Text>
+          </View>
+        </View>
+        <View className="my-6 mx-4 space-y-2">
+          <Text className="text-white text-lg">Biografia</Text>
+          <Text className="text-neutral-400 tracking-wide">
+            Joaquin Rafael Phoenix, nascido Joaquin Rafael Bottom (San Juan, Porto Rico, 28 de outubro de 1974) é um ator, produtor e ativista Portoriquenho. Por seu trabalho como ator, Phoenix recebeu um Grammy, dois Globo de Ouro e quatro indicações ao Óscar, vencendo como melhor ator na cerimônia de 2020 por sua atuação em Joker (2019). Ele recebeu atenção internacional por sua interpretação de Commodus no épico histórico Gladiador (2000), que lhe rendeu uma indicação ao Óscar de Melhor Ator Coadjuvante. Posteriormente, recebeu indicações para Melhor Ator por interpretar o músico Johnny Cash na cinebiografia Walk the Line (2005).
+          </Text>
+        </View>
+
+        {/* Filmes */}
+        <MovieList title={'Filmes'} hideSeeAll={true} data={personMovies} />
+      </View>
+    </ScrollView>
+  )
+}
+
+
+// Criar o arquivo SearchScreen na pasta screens
+// rnf
+
+
+// Alterar o arquivo appNavigation
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import HomeScreen from '../screens/HomeScreen';
+import MovieScreen from '../screens/MovieScreen';
+import PersonScreen from '../screens/PersonScreen';
+import SearchScreen from '../screens/SearchScreen';
+
+const Stack = createNativeStackNavigator();
+
+export default function AppNavigation() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name='Home' options={{ headerShown: false }} component={HomeScreen} />
+        <Stack.Screen name='Movie' options={{ headerShown: false }} component={MovieScreen} />
+        <Stack.Screen name='Person' options={{ headerShown: false }} component={PersonScreen} />
+        <Stack.Screen name='Search' options={{ headerShown: false }} component={SearchScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  )
+}
+
+
+// Alterar a HomeScreen
+import React, { useState } from 'react'
+import { View, Text, Platform, TouchableOpacity, ScrollView } from 'react-native'
+import { StatusBar } from 'expo-status-bar'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { Bars3BottomLeftIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline';
+import { styles } from '../theme';
+import { useNavigation } from '@react-navigation/native'
+import TrendingMovies from '../components/trendingMovies';
+import MovieList from '../components/movieList';
+
+const ios = Platform.OS == "ios";
+
+export default function HomeScreen() {
+  const [trending, setTrending] = useState([1,2,3]);
+  const [upcoming, setUpcoming] = useState([1,2,3]);
+  const [topRated, setTopRated] = useState([1,2,3]);
+  const navigation = useNavigation();
+
+  return (
+    <View className="flex-1 bg-neutral-800">
+      <SafeAreaView className={ios ? "-mb-2" : "mb-3"}>
+        <StatusBar style="light" />
+        <View className="flex-row justify-between items-center mx-4 mt-2">
+          <TouchableOpacity>
+            <Bars3BottomLeftIcon size={30} strokeWidth={2} color="white"/>
+          </TouchableOpacity>
+          <Text className="text-white text-3xl font-bold">
+            <Text style={styles.text}>GM</Text>ovies
+          </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Search')}>
+            <MagnifyingGlassIcon size={30} strokeWidth={2} color="white" />
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{paddingBottom: 10}}
+      >
+        <TrendingMovies data={trending} />
+
+        <MovieList title="Próximos lançamentos" data={upcoming} />
+
+        <MovieList title="Melhor Avaliados" data={topRated} />
+      </ScrollView>
+
+    </View>
+  )
+}
+
+
+// Alterar o SearchScreen
+import React, { useState } from 'react'
+import { View, Text, Dimensions, ScrollView, TouchableOpacity, Image, TextInput, TouchableWithoutFeedback } from 'react-native'
+import { useNavigation } from '@react-navigation/native'
+import { XMarkIcon } from 'react-native-heroicons/outline';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+var { width, height } = Dimensions.get('window');
+
+export default function SearchScreen() {
+  const navigation = useNavigation();
+  const [results, setResults] = useState([1, 2, 3, 4, 5, 6])
+  let movieName = "Joker: Folie à Deux";
+  return (
+    <SafeAreaView className="bg-neutral-800 flex-1">
+      <View className="m-4 flex-row justify-between items-center border border-neutral-500 rounded-full">
+        <TextInput
+          placeholder="Pesquisar..."
+          placeholderTextColor={'lightgray'}
+          className="pb-1 pl-6 flex-1 text-base font-semibold text-white tracking-wider"
+        />
+        <TouchableOpacity onPress={() => navigation.navigate('Home')}
+          className="rounded-full p-3 m-1 bg-neutral-500"
+        >
+          <XMarkIcon size="25" color="white" />
+        </TouchableOpacity>
+      </View>
+
+      {/* resultado da pesquisa */}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 15 }}
+        className="space-y-3"
+      >
+        <Text className="text-white font-semibold ml-1">Resultados ({results.length})</Text>
+        <View className="flex-row justify-between flex-wrap">
+          {
+            results.map((item, index) => {
+              return (
+                <TouchableWithoutFeedback
+                  key={index}
+                  onPress={() => navigation.push("Movie", item)}
+                >
+                  <View className="space-y-2 mb-4">
+                    <Image className="rounded-2xl"
+                      source={require('../assets/images/moviePoster2.jpg')}
+                      style={{ width: width * 0.44, height: height * 0.3 }}
+                    />
+                    <Text className="text-neutral-400 ml-1">
+                      {
+                        movieName.length > 22 ? movieName.slice(0, 22) + '...' : movieName
+                      }
+                    </Text>
+                  </View>
+                </TouchableWithoutFeedback>
+              )
+            })
+          }
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  )
+}
+
+
+// Testar
+
+
+// Alterar o SearchScreen para quando não tiver resultados
+import React, { useState } from 'react'
+import { View, Text, Dimensions, ScrollView, TouchableOpacity, Image, TextInput, TouchableWithoutFeedback } from 'react-native'
+import { useNavigation } from '@react-navigation/native'
+import { XMarkIcon } from 'react-native-heroicons/outline';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+var { width, height } = Dimensions.get('window');
+
+export default function SearchScreen() {
+  const navigation = useNavigation();
+  const [results, setResults] = useState([])
+  let movieName = "Joker: Folie à Deux";
+  return (
+    <SafeAreaView className="bg-neutral-800 flex-1">
+      <View className="m-4 flex-row justify-between items-center border border-neutral-500 rounded-full">
+        <TextInput
+          placeholder="Pesquisar..."
+          placeholderTextColor={'lightgray'}
+          className="pb-1 pl-6 flex-1 text-base font-semibold text-white tracking-wider"
+        />
+        <TouchableOpacity onPress={() => navigation.navigate('Home')}
+          className="rounded-full p-3 m-1 bg-neutral-500"
+        >
+          <XMarkIcon size="25" color="white" />
+        </TouchableOpacity>
+      </View>
+
+      {/* resultado da pesquisa */}
+      {
+        results.length > 0 ? (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 15 }}
+            className="space-y-3"
+          >
+            <Text className="text-white font-semibold ml-1">Resultados ({results.length})</Text>
+            <View className="flex-row justify-between flex-wrap">
+              {
+                results.map((item, index) => {
+                  return (
+                    <TouchableWithoutFeedback
+                      key={index}
+                      onPress={() => navigation.push("Movie", item)}
+                    >
+                      <View className="space-y-2 mb-4">
+                        <Image className="rounded-2xl"
+                          source={require('../assets/images/moviePoster2.jpg')}
+                          style={{ width: width * 0.44, height: height * 0.3 }}
+                        />
+                        <Text className="text-neutral-400 ml-1">
+                          {
+                            movieName.length > 22 ? movieName.slice(0, 22) + '...' : movieName
+                          }
+                        </Text>
+                      </View>
+                    </TouchableWithoutFeedback>
+                  )
+                })
+              }
+            </View>
+          </ScrollView>
+        ) : (
+          <View className="flex-1 flex-col justify-center items-center">
+            <Text className="text-white text-center mb-7"
+              style={{ fontSize: 32, display: 'none' }}>Nenhum Resultado Encontrado</Text>
+            <Image className="h-96 w-96 rounded-2xl"
+              source={require('../assets/images/movieTime.jpg')}
+            />
+          </View>
+        )
+      }
+    </SafeAreaView>
+  )
+}
+
+
+// Criar o arquivo loading.js na pasta components
+// rnf
+
+import React from 'react'
+import { View, Dimensions } from 'react-native'
+import * as Progress from 'react-native-progress'
+import { theme } from '../theme'
+
+var { width, height } = Dimensions.get('window');
+
+export default function Loading() {
+  return (
+    <View style={{height, width}} className="absolute flex-row justify-center items-center">
+      <Progress.CircleSnail thickness={12} size={160} color={theme.background} />
+    </View>
+  )
+}
+
+
+// Atualizar a HomeScreen:
+import React, { useState } from 'react'
+import { View, Text, Platform, TouchableOpacity, ScrollView } from 'react-native'
+import { StatusBar } from 'expo-status-bar'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { Bars3BottomLeftIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline';
+import { styles } from '../theme';
+import { useNavigation } from '@react-navigation/native'
+import TrendingMovies from '../components/trendingMovies';
+import MovieList from '../components/movieList';
+import Loading from '../components/loading';
+
+const ios = Platform.OS == "ios";
+
+export default function HomeScreen() {
+  const [trending, setTrending] = useState([1, 2, 3]);
+  const [upcoming, setUpcoming] = useState([1, 2, 3]);
+  const [topRated, setTopRated] = useState([1, 2, 3]);
+  const [loading, setLoading] = useState(false);
+  const navigation = useNavigation();
+
+  return (
+    <View className="flex-1 bg-neutral-800">
+      <SafeAreaView className={ios ? "-mb-2" : "mb-3"}>
+        <StatusBar style="light" />
+        <View className="flex-row justify-between items-center mx-4 mt-2">
+          <TouchableOpacity>
+            <Bars3BottomLeftIcon size={30} strokeWidth={2} color="white" />
+          </TouchableOpacity>
+          <Text className="text-white text-3xl font-bold">
+            <Text style={styles.text}>GM</Text>ovies
+          </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Search')}>
+            <MagnifyingGlassIcon size={30} strokeWidth={2} color="white" />
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+
+      {
+        loading ? (
+          <Loading />
+        ) : (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 10 }}
+          >
+            <TrendingMovies data={trending} />
+
+            <MovieList title="Próximos lançamentos" data={upcoming} />
+
+            <MovieList title="Melhor Avaliados" data={topRated} />
+          </ScrollView>
+        )
+      }
+
+    </View>
+  )
+}
+
+
+// Atualizar a MovieScreen:
+import React, { useEffect, useState } from 'react'
+import { View, Text, ScrollView, TouchableOpacity, Dimensions, Image } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { useNavigation, useRoute } from '@react-navigation/native'
+import { ChevronLeftIcon } from 'react-native-heroicons/outline';
+import { HeartIcon } from 'react-native-heroicons/solid';
+import { styles, theme } from '../theme';
+import { LinearGradient } from 'expo-linear-gradient';
+import Cast from '../components/cast';
+import MovieList from '../components/movieList';
+import Loading from '../components/loading';
+
+var { width, height } = Dimensions.get('window');
+
+export default function MovieScreen() {
+  const { params: item } = useRoute();
+  const navigation = useNavigation();
+  const [isFavorite, toggleFavorite] = useState(false)
+  const [cast, setCast] = useState([1, 2, 3, 4, 5])
+  const [similarMovies, setSimilarMovies] = useState([1, 2, 3, 4, 5])
+  const [loading, setLoading] = useState(false)
+  let movieName = "Joker: Folie à Deux";
+
+  useEffect(() => {
+    // call API
+  }, [item])
+
+  return (
+    <ScrollView
+      contentContainerStyle={{ paddingBottom: 20, minHeight: '100%' }}
+      className="flex-1 bg-neutral-900"
+    >
+      <View className="w-full">
+        <SafeAreaView className={"absolute z-20 w-full flex-row justify-between items-center p-4 pt-3" }>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.background} className="rounded-xl p-1">
+            <ChevronLeftIcon size="28" strokeWidth={2.5} color="white" />
+          </TouchableOpacity>
+          <Text className="text-white text-3xl font-bold">
+            <Text style={styles.text}>GM</Text>ovies
+          </Text>
+          <TouchableOpacity onPress={() => toggleFavorite(!isFavorite)}>
+            <HeartIcon size="36" color={isFavorite ? theme.background : "white"} />
+          </TouchableOpacity>
+        </SafeAreaView>
+        {
+          loading ? (
+            <Loading />
+          ) : (
+            <>
+              <View>
+                <Image
+                  source={require('../assets/images/moviePoster2.jpg')}
+                  style={{ width: width, height: height * 0.55 }}
+                />
+                <LinearGradient
+                  colors={['transparent', 'rgba(23,23,23,0.8)', 'rgba(23,23,23,1)']}
+                  style={{ width, height: height * 0.4 }}
+                  start={{ x: 0.5, y: 0 }}
+                  end={{ x: 0.5, y: 1 }}
+                  className="absolute bottom-0"
+                />
+              </View>
+              <View style={{ marginTop: -(height * 0.09) }} className="space-y-3">
+                {/* Nome do Filme */}
+                <Text className="text-white text-center text-3xl font-bold tracking-wider">
+                  {movieName}
+                </Text>
+
+                {/* Status, Estreia, Tempo de Duração */}
+                <Text className="text-neutral-400 font-semibold text-base text-center">
+                  Lancado • 2024 • 138 min
+                </Text>
+
+                {/* Gêneros */}
+                <View className="flex-row justify-center mx-4 space-x-2">
+                  <Text className="text-neutral-400 font-semibold text-base text-center">
+                    Drama  •
+                  </Text>
+                  <Text className="text-neutral-400 font-semibold text-base text-center">
+                    Crime  •
+                  </Text>
+                  <Text className="text-neutral-400 font-semibold text-base text-center">
+                    Thriller
+                  </Text>
+                </View>
+
+                {/* Sinopse */}
+                <Text className="text-neutral-400 mx-4 tracking-wide">
+                  Coringa 2 se passa depois dos acontecimentos do filme de 2019, após ser iniciado um movimento popular contra a elite de Gotham City, revolução esta, que teve o Coringa como seu maior representante. Preso no hospital psiquiátrico de Arkham, ele acaba conhecendo Harleen "Lee" Quinzel (Lady Gaga). A curiosidade mútua acaba se transformando em paixão e obsessão e eles desenvolvem um relacionamento romântico e doentio. Lee e Arthur embarcam em uma desventura alucinada, fervorosa e musical pelo submundo de Gotham City, enquanto o julgamento público d'O Coringa se desenrola, impactando toda a cidade e suas próprias mentes conturbadas.
+                </Text>
+
+                {/* Elenco */}
+                <Cast navigation={navigation} cast={cast} />
+
+                {/* Filmes Similares */}
+                <MovieList title="Filmes Similares" hideSeeAll={true} data={similarMovies} />
+
+              </View>
+            </>
+          )
+        }
+
+      </View>
+
+    </ScrollView>
+  )
+}
+
+
+// Atualizar a PersonScreen:
+import React, { useState } from 'react'
+import { View, Text, Dimensions, ScrollView, TouchableOpacity, Image } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { useNavigation, useRoute } from '@react-navigation/native'
+import { ChevronLeftIcon } from 'react-native-heroicons/outline';
+import { HeartIcon } from 'react-native-heroicons/solid';
+import { styles, theme } from '../theme';
+import { Shadow } from 'react-native-shadow-2';
+import MovieList from '../components/movieList';
+import Loading from '../components/loading';
+
+var { width, height } = Dimensions.get('window');
+
+export default function PersonScreen() {
+  const { params: item } = useRoute(); 
+  const navigation = useNavigation();
+  const [isFavorite, toggleFavorite] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [personMovies, setPersonMovies] = useState([1, 2, 3, 4])
+  return (
+    <ScrollView
+      contentContainerStyle={{ paddingBottom: 20, minHeight: '100%' }}
+      className="flex-1 bg-neutral-900"
+    >
+      {/* Botões de Navegação */}
+      <SafeAreaView className={"z-20 w-full flex-row justify-between items-center p-4 pt-3"}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.background} className="rounded-xl p-1">
+          <ChevronLeftIcon size="28" strokeWidth={2.5} color="white" />
+        </TouchableOpacity>
+        <Text className="text-white text-3xl font-bold">
+          <Text style={styles.text}>GM</Text>ovies
+        </Text>
+        <TouchableOpacity onPress={() => toggleFavorite(!isFavorite)}>
+          <HeartIcon size="36" color={isFavorite ? theme.background : "white"} />
+        </TouchableOpacity>
+      </SafeAreaView>
+
+      {/* Dados da Pessoa */}
+      {
+        loading ? (
+          <Loading />
+        ) : (
+          <View>
+            <View className="flex-row justify-center">
+              <Shadow className="items-center overflow-hidden h-72 w-72 border-3 border-neutral-500" startColor='rgb(60 60 60)' distance={50}>
+                <Image
+                  style={{ height: height * 0.42, width: width * 0.70, borderRadius: 150 }}
+                  source={require('../assets/images/actor.jpg')}
+                />
+              </Shadow>
+            </View>
+            <View className="mt-5">
+              <Text className="text-3xl text-white font-bold text-center">
+                Joaquin Phoenix
+              </Text>
+              <Text className="text-base text-neutral-500 text-center">
+                San Juan, Puerto Rico
+              </Text>
+            </View>
+            <View className="mx-3 p-4 mt-6 flex flex-row items-center bg-neutral-700 rounded-full">
+              <View className="basis-1/3 border-r-2 border-r-neutral-400 px-2 items-center">
+                <Text className="text-white font-semibold">Gênero</Text>
+                <Text className="text-neutral-300 text-sm">Masculino</Text>
+              </View>
+              
+              <View className="basis-1/3 border-r-2 border-r-neutral-400 px-2 items-center">
+                <Text className="text-white font-semibold">Nascimento</Text>
+                <Text className="text-neutral-300 text-sm">28/10/1974</Text>
+              </View>
+              
+              <View className="basis-1/3 px-2 items-center">
+                <Text className="text-white font-semibold">Popularidade</Text>
+                <Text className="text-neutral-300 text-sm">89</Text>
+              </View>
+            </View>
+            <View className="my-6 mx-4 space-y-2">
+              <Text className="text-white text-lg">Biografia</Text>
+              <Text className="text-neutral-400 tracking-wide">
+                Joaquin Rafael Phoenix, nascido Joaquin Rafael Bottom (San Juan, Porto Rico, 28 de outubro de 1974) é um ator, produtor e ativista Portoriquenho. Por seu trabalho como ator, Phoenix recebeu um Grammy, dois Globo de Ouro e quatro indicações ao Óscar, vencendo como melhor ator na cerimônia de 2020 por sua atuação em Joker (2019). Ele recebeu atenção internacional por sua interpretação de Commodus no épico histórico Gladiador (2000), que lhe rendeu uma indicação ao Óscar de Melhor Ator Coadjuvante. Posteriormente, recebeu indicações para Melhor Ator por interpretar o músico Johnny Cash na cinebiografia Walk the Line (2005).
+              </Text>
+            </View>
+
+            {/* Filmes */}
+            <MovieList title={'Filmes'} hideSeeAll={true} data={personMovies} />
+          </View>
+        )
+      }
+    </ScrollView>
+  )
+}
+
+
+// Atualizar a SearchScreen:
+import React, { useState } from 'react'
+import { View, Text, Dimensions, ScrollView, TouchableOpacity, Image, TextInput, TouchableWithoutFeedback } from 'react-native'
+import { useNavigation } from '@react-navigation/native'
+import { XMarkIcon } from 'react-native-heroicons/outline';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Loading from '../components/loading';
+
+var { width, height } = Dimensions.get('window');
+
+export default function SearchScreen() {
+  const navigation = useNavigation();
+  const [results, setResults] = useState([])
+  const [loading, setLoading] = useState(false)
+  let movieName = "Joker: Folie à Deux";
+  return (
+    <SafeAreaView className="bg-neutral-800 flex-1">
+      <View className="m-4 flex-row justify-between items-center border border-neutral-500 rounded-full">
+        <TextInput
+          placeholder="Pesquisar..."
+          placeholderTextColor={'lightgray'}
+          className="pb-1 pl-6 flex-1 text-base font-semibold text-white tracking-wider"
+        />
+        <TouchableOpacity onPress={() => navigation.navigate('Home')}
+          className="rounded-full p-3 m-1 bg-neutral-500"
+        >
+          <XMarkIcon size="25" color="white" />
+        </TouchableOpacity>
+      </View>
+
+      {/* resultado da pesquisa */}
+      {
+        loading ? (
+          <Loading />
+        ) :
+          results.length > 0 ? (
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 15 }}
+              className="space-y-3"
+            >
+              <Text className="text-white font-semibold ml-1">Resultados ({results.length})</Text>
+              <View className="flex-row justify-between flex-wrap">
+                {
+                  results.map((item, index) => {
+                    return (
+                      <TouchableWithoutFeedback
+                        key={index}
+                        onPress={() => navigation.push("Movie", item)}
+                      >
+                        <View className="space-y-2 mb-4">
+                          <Image className="rounded-2xl"
+                            source={require('../assets/images/moviePoster2.jpg')}
+                            style={{ width: width * 0.44, height: height * 0.3 }}
+                          />
+                          <Text className="text-neutral-400 ml-1">
+                            {
+                              movieName.length > 22 ? movieName.slice(0, 22) + '...' : movieName
+                            }
+                          </Text>
+                        </View>
+                      </TouchableWithoutFeedback>
+                    )
+                  })
+                }
+              </View>
+            </ScrollView>
+          ) : (
+            <View className="flex-1 flex-col justify-center items-center">
+              <Text className="text-white text-center mb-7"
+                style={{ fontSize: 32, display: 'none' }}>Nenhum Resultado Encontrado</Text>
+              <Image className="h-96 w-96 rounded-2xl"
+                source={require('../assets/images/movieTime.jpg')}
+              />
+            </View>
+          )
+      }
+    </SafeAreaView>
+  )
+}
+
+
+Criar uma pasta api e dentro um arquivo moviedb.js
+import axios from 'axios';
+import { apiKey } from '../constants';
+
+//endpoints
+const apiBaseUrl = 'https://api.themoviedb.org/3/';
+const trendingMoviesEndpoint = `${apiBaseUrl}trending/movie/day?language=pt-br&api_key=${apiKey}`;
+const upcomingMoviesEndpoint = `${apiBaseUrl}movie/upcoming?language=pt-br&api_key=${apiKey}`;
+const topRatedMoviesEndpoint = `${apiBaseUrl}movie/top_rated?language=pt-br&api_key=${apiKey}`;
+
+const apiCall = async (endpoint, params) => {
+    const options = {
+        method: 'GET',
+        url: endpoint,
+        params: params? params: {}
+    }
+
+    try {
+        const response = await axios.request(options);
+        return response.data;
+    } catch (error) {
+        console.log('error: ', error);
+        return {}
+    }
+}
+
+export const image500 = path => path ? `https://image.tmdb.org/t/p/w500${path}` : null;
+export const image342 = path => path ? `https://image.tmdb.org/t/p/w342${path}` : null;
+export const image185 = path => path ? `https://image.tmdb.org/t/p/w185${path}` : null;
+
+export const fetchTrendingMovies = () => {
+    return apiCall(trendingMoviesEndpoint);
+}
+export const fetchUpcomingMovies = () => {
+    return apiCall(upcomingMoviesEndpoint);
+}
+export const fetchTopRatedMovies = () => {
+    return apiCall(topRatedMoviesEndpoint);
+}
+
+
+Criar uma pasta constants e dentro um arquivo index.js:
+************* export const apiKey = 'Colocar sua chave API do site themoviedb.org'; ************
+
+export const moviesData = [
+  {
+    id: 1,
+    title: 'Joker: Folie à Deux',
+    backgroundPoster: 'https://image.tmdb.org/t/p/w500/9RmVr8dPWicFyPZ5JCQK3NcBNB5.jpg',
+    description: 'Coringa 2 se passa depois dos acontecimentos do filme de 2019, após ser iniciado um movimento popular contra a elite de Gotham City, revolução esta, que teve o Coringa como seu maior representante. Preso no hospital psiquiátrico de Arkham, ele acaba conhecendo Harleen "Lee" Quinzel (Lady Gaga). A curiosidade mútua acaba se transformando em paixão e obsessão e eles desenvolvem um relacionamento romântico e doentio. Lee e Arthur embarcam em uma desventura alucinada, fervorosa e musical pelo submundo de Gotham City, enquanto o julgamento público do Coringa se desenrola, impactando toda a cidade e suas próprias mentes conturbadas.',
+    releaseDate: '03/10/2024',
+    releaseYear: '2024',
+    runTime: '138',
+  }
+]
+
+export const personData = {
+  name: 'Joaquin Phoenix',
+  birthPlace: 'San Juan, Puerto Rico',
+  birthday: '28/10/1974',
+  gender: 'Masculino',
+  knownFor: 'Atuar',
+  popularity: 89,
+  biography: 'Joaquin Rafael Phoenix, nascido Joaquin Rafael Bottom (San Juan, Porto Rico, 28 de outubro de 1974) é um ator, produtor e ativista Portoriquenho. Por seu trabalho como ator, Phoenix recebeu um Grammy, dois Globo de Ouro e quatro indicações ao Óscar, vencendo como melhor ator na cerimônia de 2020 por sua atuação em Joker (2019). Ele recebeu atenção internacional por sua interpretação de Commodus no épico histórico Gladiador (2000), que lhe rendeu uma indicação ao Óscar de Melhor Ator Coadjuvante. Posteriormente, recebeu indicações para Melhor Ator por interpretar o músico Johnny Cash na cinebiografia Walk the Line (2005).'
+}
+
+
+Alterar HomeScreen:
+import React, { useEffect, useState } from 'react'
+import { View, Text, Platform, TouchableOpacity, ScrollView } from 'react-native'
+import { StatusBar } from 'expo-status-bar'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { Bars3BottomLeftIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline';
+import { styles } from '../theme';
+import { useNavigation } from '@react-navigation/native'
+import TrendingMovies from '../components/trendingMovies';
+import MovieList from '../components/movieList';
+import Loading from '../components/loading';
+import { fetchTrendingMovies } from '../api/moviedb';
+
+const ios = Platform.OS == "ios";
+
+export default function HomeScreen() {
+  const [trending, setTrending] = useState([1, 2, 3]);
+  const [upcoming, setUpcoming] = useState([1, 2, 3]);
+  const [topRated, setTopRated] = useState([1, 2, 3]);
+  const [loading, setLoading] = useState(true);
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    getTrendingMovies();
+  }, [])
+
+  const getTrendingMovies = async () => {
+    const data = await fetchTrendingMovies();
+    console.log('got trending movies: ', data);
+    if (data && data.results) setTrending(data.results);
+    setLoading(false);
+  }
+
+  return (
+    <View className="flex-1 bg-neutral-800">
+      <SafeAreaView className={ios ? "-mb-2" : "mb-3"}>
+        <StatusBar style="light" />
+        <View className="flex-row justify-between items-center mx-4 mt-2">
+          <TouchableOpacity>
+            <Bars3BottomLeftIcon size={30} strokeWidth={2} color="white" />
+          </TouchableOpacity>
+          <Text className="text-white text-3xl font-bold">
+            <Text style={styles.text}>GM</Text>ovies
+          </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Search')}>
+            <MagnifyingGlassIcon size={30} strokeWidth={2} color="white" />
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+
+      {
+        loading ? (
+          <Loading />
+        ) : (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 10 }}
+          >
+            { trending.length > 0 && <TrendingMovies data={trending} />}
+
+            <MovieList title="Próximos lançamentos" data={upcoming} />
+
+            <MovieList title="Melhor Avaliados" data={topRated} />
+          </ScrollView>
+        )
+      }
+
+    </View>
+  )
+}
+
+
+Testar e olhar o console
+
+
+Alterar no trendingMovies.js o MovieCard:
+import React from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { View, Text, Dimensions, TouchableWithoutFeedback, Image } from 'react-native'
+import Carousel from 'react-native-reanimated-carousel';
+import { image500 } from '../api/moviedb';
+
+var { width, height } = Dimensions.get('window');
+
+export default function TrendingMovies({ data }) {
+  const navigation = useNavigation();
+  const handleClick = (item) => {
+    navigation.navigate('Movie', item);
+  }
+
+  return (
+    <View className="mb-8">
+      <Text className="text-white text-xl mx-4 my-3">Em alta</Text>
+      <Carousel
+        loop
+        width={width * 0.6}
+        height={height * 0.4}
+        autoPlay={false}
+        data={data}
+        // scrollAnimationDuration={5000}
+        renderItem={({ item }) => <MovieCard item={item} handleClick={handleClick} />}
+        mode="parallax"
+        modeConfig={{
+          parallaxScrollingScale: 1,
+          parallaxScrollingOffset: 1,
+          parallaxAdjacentItemScale: 0.9,
+        }}
+        style={{ width: width, justifyContent: 'center' }}
+      />
+    </View>
+  )
+}
+
+const MovieCard = ({item, handleClick}) => {
+  return (
+    <TouchableWithoutFeedback onPress={() => handleClick(item)}>
+      <Image
+        source={{ uri: image500(item.poster_path)}}
+        style={{ width: '100%', height: '100%' }}
+        className="rounded-2xl"
+      />
+    </TouchableWithoutFeedback>
+  )
+}
+
+
+Alterar movieList.js:
+import React from 'react'
+import { View, Text, TouchableOpacity, ScrollView, TouchableWithoutFeedback, Image, Dimensions } from 'react-native'
+import { styles } from '../theme'
+import { useNavigation } from '@react-navigation/native';
+import { image185 } from '../api/moviedb';
+
+var { width, height } = Dimensions.get('window');
+
+export default function MovieList({ title, data, hideSeeAll }) {
+  const navigation = useNavigation();
+  return (
+    <View className="mb-9 space-y-4">
+      <View className="mx-4 flex-row justify-between items-center">
+        <Text className="text-white text-xl">{title}</Text>
+        {
+          !hideSeeAll && (
+            <TouchableOpacity>
+              <Text style={styles.text} className="text-lg">Ver todos</Text>
+            </TouchableOpacity>
+          )
+        }
+      </View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 15 }}
+      >
+        {
+          data.map((item, index) => {
+            return (
+              <TouchableWithoutFeedback
+                key={index}
+                onPress={() => navigation.push('Movie', item)}
+              >
+                <View className="space-y-1 mr-4">
+                  <Image
+                    source={{ uri: image185(item.poster_path )}}
+                    className="rounded-3xl"
+                    style={{ width: width * 0.35, height: height * 0.26 }}
+                  />
+                  <Text className="text-neutral-300 ml-1 text-center">
+                    {
+                      item.title.length > 14 ? item.title.slice(0, 14) + '...' : item.title
+                    }
+                  </Text>
+                </View>
+              </TouchableWithoutFeedback>
+            )
+          })
+        }
+      </ScrollView>
+    </View>
+  )
+}
+
+
+Alterar a ultima linha de código do arquivo MovieScreen.js:
+{/* <MovieList title="Filmes Similares" hideSeeAll={true} data={similarMovies} /> */}
+
+
+Alterar HomeScreen:
+import React, { useEffect, useState } from 'react'
+import { View, Text, Platform, TouchableOpacity, ScrollView } from 'react-native'
+import { StatusBar } from 'expo-status-bar'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { Bars3BottomLeftIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline';
+import { styles } from '../theme';
+import { useNavigation } from '@react-navigation/native'
+import TrendingMovies from '../components/trendingMovies';
+import MovieList from '../components/movieList';
+import Loading from '../components/loading';
+import { fetchTopRatedMovies, fetchTrendingMovies, fetchUpcomingMovies } from '../api/moviedb';
+
+const ios = Platform.OS == "ios";
+
+export default function HomeScreen() {
+  const [trending, setTrending] = useState([]);
+  const [upcoming, setUpcoming] = useState([]);
+  const [topRated, setTopRated] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    getTrendingMovies();
+    getUpcomingMovies();
+    getTopRatedMovies();
+    setLoading(false);
+  }, [])
+
+  const getTrendingMovies = async () => {
+    const data = await fetchTrendingMovies();
+    if (data && data.results) setTrending(data.results);
+  }
+
+  const getUpcomingMovies = async () => {
+    const data = await fetchUpcomingMovies();
+    if (data && data.results) setUpcoming(data.results);
+  }
+
+  const getTopRatedMovies = async () => {
+    const data = await fetchTopRatedMovies();
+    if (data && data.results) setTopRated(data.results);
+  }
+
+  return (
+    <View className="flex-1 bg-neutral-800">
+      <SafeAreaView className={ios ? "-mb-2" : "mb-3"}>
+        <StatusBar style="light" />
+        <View className="flex-row justify-between items-center mx-4 mt-2">
+          <TouchableOpacity>
+            <Bars3BottomLeftIcon size={30} strokeWidth={2} color="white" />
+          </TouchableOpacity>
+          <Text className="text-white text-3xl font-bold">
+            <Text style={styles.text}>GM</Text>ovies
+          </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Search')}>
+            <MagnifyingGlassIcon size={30} strokeWidth={2} color="white" />
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+
+      {
+        loading ? (
+          <Loading />
+        ) : (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 10 }}
+          >
+            { trending.length > 0 && <TrendingMovies data={trending} />}
+
+            <MovieList title="Próximos lançamentos" data={upcoming} />
+
+            <MovieList title="Melhor Avaliados" data={topRated} />
+          </ScrollView>
+        )
+      }
+
+    </View>
+  )
+}
+
+
+Testar
+
+
+Alterar mo arquivo moviedb.js:
+import axios from 'axios';
+import { apiKey } from '../constants';
+
+// endpoints
+const apiBaseUrl = 'https://api.themoviedb.org/3/';
+const trendingMoviesEndpoint = `${apiBaseUrl}trending/movie/day?language=pt-br&api_key=${apiKey}`;
+const upcomingMoviesEndpoint = `${apiBaseUrl}movie/upcoming?language=pt-br&api_key=${apiKey}`;
+const topRatedMoviesEndpoint = `${apiBaseUrl}movie/top_rated?language=pt-br&api_key=${apiKey}`;
+
+// dynamic endpoints
+const movieDetailsEndpoint = id => `${apiBaseUrl}movie/${id}?language=pt-br&api_key=${apiKey}`;
+const movieCreditsEndpoint = id => `${apiBaseUrl}movie/${id}/credits?language=pt-br&api_key=${apiKey}`;
+const similarMoviesEndpoint = id => `${apiBaseUrl}movie/${id}/similar?language=pt-br&api_key=${apiKey}`;
+
+const apiCall = async (endpoint, params) => {
+    const options = {
+        method: 'GET',
+        url: endpoint,
+        params: params? params: {}
+    }
+
+    try {
+        const response = await axios.request(options);
+        return response.data;
+    } catch (error) {
+        console.log('error: ', error);
+        return {}
+    }
+}
+
+export const image500 = path => path ? `https://image.tmdb.org/t/p/w500${path}` : null;
+export const image342 = path => path ? `https://image.tmdb.org/t/p/w342${path}` : null;
+export const image185 = path => path ? `https://image.tmdb.org/t/p/w185${path}` : null;
+
+export const fetchTrendingMovies = () => {
+    return apiCall(trendingMoviesEndpoint);
+}
+export const fetchUpcomingMovies = () => {
+    return apiCall(upcomingMoviesEndpoint);
+}
+export const fetchTopRatedMovies = () => {
+    return apiCall(topRatedMoviesEndpoint);
+}
+
+export const fetchMovieDetails = id => {
+    return apiCall(movieDetailsEndpoint(id));
+}
+export const fetchMovieCredits = id => {
+    return apiCall(movieCreditsEndpoint(id));
+}
+export const fetchSimilarMovies = id => {
+    return apiCall(similarMoviesEndpoint(id));
+}
+
+
+Alterar o MovieScree.js:
+import React, { useEffect, useState } from 'react'
+import { View, Text, ScrollView, TouchableOpacity, Dimensions, Image } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { useNavigation, useRoute } from '@react-navigation/native'
+import { ChevronLeftIcon } from 'react-native-heroicons/outline';
+import { HeartIcon } from 'react-native-heroicons/solid';
+import { styles, theme } from '../theme';
+import { LinearGradient } from 'expo-linear-gradient';
+import Cast from '../components/cast';
+import MovieList from '../components/movieList';
+import Loading from '../components/loading';
+import { fetchMovieCredits, fetchMovieDetails, fetchSimilarMovies, image500 } from '../api/moviedb';
+
+var { width, height } = Dimensions.get('window');
+
+export default function MovieScreen() {
+  const { params: item } = useRoute();
+  const navigation = useNavigation();
+  const [isFavorite, toggleFavorite] = useState(false)
+  const [cast, setCast] = useState([])
+  const [similarMovies, setSimilarMovies] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [movie, setMovie] = useState({});
+
+  useEffect(() => {
+    setLoading(true);
+    getMovieDetails(item.id);
+    getMovieCredits(item.id);
+    getSimilarMovies(item.id);
+    setLoading(false);
+  }, [item])
+
+  const getMovieDetails = async id => {
+    const data = await fetchMovieDetails(id);
+    if (data) setMovie(data);
+  }
+  const getMovieCredits = async id => {
+    const data = await fetchMovieCredits(id);
+    if (data && data.cast) setCast(data.cast);
+  }
+  const getSimilarMovies = async id => {
+    const data = await fetchSimilarMovies(id);
+    if (data && data.results) setSimilarMovies(data.results);
+  }
+
+  return (
+    <ScrollView
+      contentContainerStyle={{ paddingBottom: 20, minHeight: '100%' }}
+      className="flex-1 bg-neutral-900"
+    >
+      <View className="w-full">
+        <SafeAreaView className={"absolute z-20 w-full flex-row justify-between items-center p-4 pt-3"}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.background} className="rounded-xl p-1">
+            <ChevronLeftIcon size="28" strokeWidth={2.5} color="white" />
+          </TouchableOpacity>
+          <Text className="text-white text-3xl font-bold">
+            <Text style={styles.text}>GM</Text>ovies
+          </Text>
+          <TouchableOpacity onPress={() => toggleFavorite(!isFavorite)}>
+            <HeartIcon size="36" color={isFavorite ? theme.background : "white"} />
+          </TouchableOpacity>
+        </SafeAreaView>
+        {
+          loading ? (
+            <Loading />
+          ) : (
+            <>
+              <View>
+                <Image
+                  source={{ uri: image500(movie?.poster_path) }}
+                  style={{ width: width, height: height * 0.55 }}
+                />
+                <LinearGradient
+                  colors={['transparent', 'rgba(23,23,23,0.8)', 'rgba(23,23,23,1)']}
+                  style={{ width, height: height * 0.4 }}
+                  start={{ x: 0.5, y: 0 }}
+                  end={{ x: 0.5, y: 1 }}
+                  className="absolute bottom-0"
+                />
+              </View>
+              <View style={{ marginTop: -(height * 0.09) }} className="space-y-3">
+                {/* Nome do Filme */}
+                <Text className="text-white text-center text-3xl font-bold tracking-wider">
+                  {movie?.title}
+                </Text>
+
+                {/* Status, Estreia, Tempo de Duração */}
+                {
+                  movie?.id ? (
+                    <Text className="text-neutral-400 font-semibold text-base text-center">
+                      {movie?.status} • {movie?.release_date?.split('-')[0]} • {movie?.runtime} min
+                    </Text>
+                  ) : null
+                }
+
+                {/* Gêneros */}
+                <View className="flex-row justify-center mx-4 space-x-2">
+                  {
+                    movie?.genres?.map((genre, index) => {
+                      let showDot = index + 1 != movie.genres.length;
+                      return (
+                        <Text key={index} className="text-neutral-400 font-semibold text-base text-center">
+                          {genre?.name}  {showDot ? "•" : null}
+                        </Text>
+                      )
+                    })
+                  }
+                </View>
+
+                {/* Sinopse */}
+                <Text className="text-neutral-400 mx-4 tracking-wide">
+                  {movie?.overview}
+                </Text>
+
+                {/* Elenco */}
+                <Cast navigation={navigation} cast={cast} />
+
+                {/* Filmes Similares */}
+                <MovieList title="Filmes Similares" hideSeeAll={true} data={similarMovies} />
+
+              </View>
+            </>
+          )
+        }
+
+      </View>
+
+    </ScrollView>
+  )
+}
+
+
+Alterar cast.js:
+import React from 'react'
+import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native'
+import { image185 } from '../api/moviedb'
+
+export default function Cast({ cast, navigation }) {
+  let personName = 'Joaquin Phoenix'
+  let characterName = 'Arthur Fleck'
+  return (
+    <View className="my-6">
+      <Text className="text-white text-xl mx-4 mb-5">Elenco</Text>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 15 }}
+      >
+        {
+          cast && cast.map((person, index) => {
+            return (
+              <TouchableOpacity
+                key={index}
+                className="mr-3 items-center"
+                onPress={() => navigation.navigate('Person', person)}
+              >
+                <View className="overflow-hidden rounded-full h-20 w-20 items-center border border-neutral-500">
+                  <Image className="rounded-2xl h-24 w-20"
+                    source={{ uri: image185(person?.profile_path) }}
+                  />
+                </View>
+                <Text className="text-white text-xs mt-1">
+                  {
+                    person?.character.length > 10 ? person?.character.slice(0,10) + '...' : person?.character
+                  }
+                </Text>
+                <Text className="text-neutral-400 text-xs mt-1">
+                  {
+                    person?.original_name.length > 10 ? person?.original_name.slice(0,10) + '...' : person?.original_name
+                  }
+                </Text>
+              </TouchableOpacity>
+            )
+          })
+        }
+      </ScrollView>
+    </View>
+  )
+}
+
+
+Testar
+
+
+Alterar moviedb.js:
+import axios from 'axios';
+import { apiKey } from '../constants';
+
+// endpoints
+const apiBaseUrl = 'https://api.themoviedb.org/3/';
+const trendingMoviesEndpoint = `${apiBaseUrl}trending/movie/day?language=pt-br&api_key=${apiKey}`;
+const upcomingMoviesEndpoint = `${apiBaseUrl}movie/upcoming?language=pt-br&api_key=${apiKey}`;
+const topRatedMoviesEndpoint = `${apiBaseUrl}movie/top_rated?language=pt-br&api_key=${apiKey}`;
+
+// dynamic endpoints
+const movieDetailsEndpoint = id => `${apiBaseUrl}movie/${id}?language=pt-br&api_key=${apiKey}`;
+const movieCreditsEndpoint = id => `${apiBaseUrl}movie/${id}/credits?language=pt-br&api_key=${apiKey}`;
+const similarMoviesEndpoint = id => `${apiBaseUrl}movie/${id}/similar?language=pt-br&api_key=${apiKey}`;
+
+const personDetailsEndpoint = id => `${apiBaseUrl}person/${id}?language=pt-br&api_key=${apiKey}`;
+const personMoviesEndpoint = id => `${apiBaseUrl}person/${id}/movie_credits?language=pt-br&api_key=${apiKey}`;
+
+const apiCall = async (endpoint, params) => {
+    const options = {
+        method: 'GET',
+        url: endpoint,
+        params: params? params: {}
+    }
+
+    try {
+        const response = await axios.request(options);
+        return response.data;
+    } catch (error) {
+        console.log('error: ', error);
+        return {}
+    }
+}
+
+export const image500 = path => path ? `https://image.tmdb.org/t/p/w500${path}` : null;
+export const image342 = path => path ? `https://image.tmdb.org/t/p/w342${path}` : null;
+export const image185 = path => path ? `https://image.tmdb.org/t/p/w185${path}` : null;
+
+export const fetchTrendingMovies = () => {
+    return apiCall(trendingMoviesEndpoint);
+}
+export const fetchUpcomingMovies = () => {
+    return apiCall(upcomingMoviesEndpoint);
+}
+export const fetchTopRatedMovies = () => {
+    return apiCall(topRatedMoviesEndpoint);
+}
+
+export const fetchMovieDetails = id => {
+    return apiCall(movieDetailsEndpoint(id));
+}
+export const fetchMovieCredits = id => {
+    return apiCall(movieCreditsEndpoint(id));
+}
+export const fetchSimilarMovies = id => {
+    return apiCall(similarMoviesEndpoint(id));
+}
+
+export const fetchPersonDetails = id => {
+    return apiCall(personDetailsEndpoint(id));
+}
+export const fetchPersonMovies = id => {
+    return apiCall(personMoviesEndpoint(id));
+}
+
+
+
+Alterar PersonScreen.js:
+import React, { useEffect, useState } from 'react'
+import { View, Text, Dimensions, ScrollView, TouchableOpacity, Image } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { useNavigation, useRoute } from '@react-navigation/native'
+import { ChevronLeftIcon } from 'react-native-heroicons/outline';
+import { HeartIcon } from 'react-native-heroicons/solid';
+import { styles, theme } from '../theme';
+import { Shadow } from 'react-native-shadow-2';
+import MovieList from '../components/movieList';
+import Loading from '../components/loading';
+import { fetchPersonDetails, fetchSimilarMovies, image342, image500 } from '../api/moviedb';
+
+var { width, height } = Dimensions.get('window');
+
+export default function PersonScreen() {
+  const { params: item } = useRoute(); 
+  const navigation = useNavigation();
+  const [isFavorite, toggleFavorite] = useState(false)
+  const [personMovies, setPersonMovies] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [person, setPerson] = useState({});
+
+  useEffect(() => {
+    setLoading(true);
+    getPersonDetails(item.id);
+    getPersonMovies(item.id);
+    setLoading(false);
+  }, [item])
+
+  const getPersonDetails = async id => {
+    const data = await fetchPersonDetails(id);
+    if (data) setPerson(data);
+  }
+  const getPersonMovies = async id => {
+    const data = await fetchSimilarMovies(id);
+    if (data && data.results) setPersonMovies(data.results);
+  }
+
+  return (
+    <ScrollView
+      contentContainerStyle={{ paddingBottom: 20, minHeight: '100%' }}
+      className="flex-1 bg-neutral-900"
+    >
+      {/* Botões de Navegação */}
+      <SafeAreaView className={"z-20 w-full flex-row justify-between items-center p-4 pt-3"}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.background} className="rounded-xl p-1">
+          <ChevronLeftIcon size="28" strokeWidth={2.5} color="white" />
+        </TouchableOpacity>
+        <Text className="text-white text-3xl font-bold">
+          <Text style={styles.text}>GM</Text>ovies
+        </Text>
+        <TouchableOpacity onPress={() => toggleFavorite(!isFavorite)}>
+          <HeartIcon size="36" color={isFavorite ? theme.background : "white"} />
+        </TouchableOpacity>
+      </SafeAreaView>
+
+      {/* Dados da Pessoa */}
+      {
+        loading ? (
+          <Loading />
+        ) : (
+          <View>
+            <View className="flex-row justify-center">
+              <Shadow className="items-center overflow-hidden h-72 w-72 border-3 border-neutral-500" startColor='rgb(60 60 60)' distance={50}>
+                <Image
+                  style={{ height: height * 0.42, width: width * 0.70, borderRadius: 150 }}
+                  source={{uri: image342(person?.profile_path)}}
+                />
+              </Shadow>
+            </View>
+            <View className="mt-5">
+              <Text className="text-3xl text-white font-bold text-center">
+                {person?.name}
+              </Text>
+              <Text className="text-base text-neutral-500 text-center">
+                {person?.place_of_birth}
+              </Text>
+            </View>
+            <View className="mx-3 p-4 mt-6 flex flex-row items-center bg-neutral-700 rounded-full">
+              <View className="basis-1/3 border-r-2 border-r-neutral-400 px-2 items-center">
+                <Text className="text-white font-semibold">Gênero</Text>
+                <Text className="text-neutral-300 text-sm">
+                  {person?.gender == 1 ? 'Feminino' : 'Masculino'}
+                </Text>
+              </View>
+              
+              <View className="basis-1/3 border-r-2 border-r-neutral-400 px-2 items-center">
+                <Text className="text-white font-semibold">Nascimento</Text>
+                <Text className="text-neutral-300 text-sm">{person?.birthday}</Text>
+              </View>
+              
+              <View className="basis-1/3 px-2 items-center">
+                <Text className="text-white font-semibold">Popularidade</Text>
+                <Text className="text-neutral-300 text-sm">{person?.popularity?.toFixed(1)}%</Text>
+              </View>
+            </View>
+            <View className="my-6 mx-4 space-y-2">
+              <Text className="text-white text-lg">Biografia</Text>
+              <Text className="text-neutral-400 tracking-wide">
+                {person?.biography || 'N/A'}
+              </Text>
+            </View>
+
+            {/* Filmes */}
+            <MovieList title={'Filmes'} hideSeeAll={true} data={personMovies} />
+          </View>
+        )
+      }
+    </ScrollView>
+  )
+}
+
+
+Alterar moviedb.js:
+import axios from 'axios';
+import { apiKey } from '../constants';
+
+// endpoints
+const apiBaseUrl = 'https://api.themoviedb.org/3/';
+const trendingMoviesEndpoint = `${apiBaseUrl}trending/movie/day?language=pt-br&api_key=${apiKey}`;
+const upcomingMoviesEndpoint = `${apiBaseUrl}movie/upcoming?language=pt-br&api_key=${apiKey}`;
+const topRatedMoviesEndpoint = `${apiBaseUrl}movie/top_rated?language=pt-br&api_key=${apiKey}`;
+const searchMoviesEndpoint = `${apiBaseUrl}search/movie?language=pt-br&api_key=${apiKey}`;
+
+// dynamic endpoints
+const movieDetailsEndpoint = id => `${apiBaseUrl}movie/${id}?language=pt-br&api_key=${apiKey}`;
+const movieCreditsEndpoint = id => `${apiBaseUrl}movie/${id}/credits?language=pt-br&api_key=${apiKey}`;
+const similarMoviesEndpoint = id => `${apiBaseUrl}movie/${id}/similar?language=pt-br&api_key=${apiKey}`;
+
+const personDetailsEndpoint = id => `${apiBaseUrl}person/${id}?language=pt-br&api_key=${apiKey}`;
+const personMoviesEndpoint = id => `${apiBaseUrl}person/${id}/movie_credits?language=pt-br&api_key=${apiKey}`;
+
+const apiCall = async (endpoint, params) => {
+    const options = {
+        method: 'GET',
+        url: endpoint,
+        params: params? params: {}
+    }
+
+    try {
+        const response = await axios.request(options);
+        return response.data;
+    } catch (error) {
+        console.log('error: ', error);
+        return {}
+    }
+}
+
+export const image500 = path => path ? `https://image.tmdb.org/t/p/w500${path}` : null;
+export const image342 = path => path ? `https://image.tmdb.org/t/p/w342${path}` : null;
+export const image185 = path => path ? `https://image.tmdb.org/t/p/w185${path}` : null;
+
+export const fetchTrendingMovies = () => {
+    return apiCall(trendingMoviesEndpoint);
+}
+export const fetchUpcomingMovies = () => {
+    return apiCall(upcomingMoviesEndpoint);
+}
+export const fetchTopRatedMovies = () => {
+    return apiCall(topRatedMoviesEndpoint);
+}
+
+export const fetchMovieDetails = id => {
+    return apiCall(movieDetailsEndpoint(id));
+}
+export const fetchMovieCredits = id => {
+    return apiCall(movieCreditsEndpoint(id));
+}
+export const fetchSimilarMovies = id => {
+    return apiCall(similarMoviesEndpoint(id));
+}
+
+export const fetchPersonDetails = id => {
+    return apiCall(personDetailsEndpoint(id));
+}
+export const fetchPersonMovies = id => {
+    return apiCall(personMoviesEndpoint(id));
+}
+
+export const searchMovies = params => {
+    return apiCall(searchMoviesEndpoint, params);
+}
+
+
+
+Alterar SearchScreen.js:
+import React, { useCallback, useState } from 'react'
+import { View, Text, Dimensions, ScrollView, TouchableOpacity, Image, TextInput, TouchableWithoutFeedback } from 'react-native'
+import { useNavigation } from '@react-navigation/native'
+import { XMarkIcon } from 'react-native-heroicons/outline';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Loading from '../components/loading';
+import { debounce, set } from 'lodash';
+import { image185, searchMovies } from '../api/moviedb';
+
+var { width, height } = Dimensions.get('window');
+
+export default function SearchScreen() {
+  const navigation = useNavigation();
+  const [results, setResults] = useState([])
+  const [loading, setLoading] = useState(false)
+  const handleSearch = value => {
+    if (value && value.length > 2) {
+      setLoading(true);
+      searchMovies({
+        query: value,
+        include_adult: 'false',
+        page: '1'
+      }).then(data => {
+        if (data && data.results) setResults(data.results);
+        setLoading(false);
+      })
+    } else {
+      setResults([]);
+      setLoading(false);
+    } 
+  }
+  const handleTextDebounce = useCallback(debounce(handleSearch, 400), []);
+
+  return (
+    <SafeAreaView className="bg-neutral-800 flex-1">
+      <View className="m-4 flex-row justify-between items-center border border-neutral-500 rounded-full">
+        <TextInput
+          onChangeText={handleTextDebounce}
+          placeholder="Pesquisar..."
+          placeholderTextColor={'lightgray'}
+          className="pb-1 pl-6 flex-1 text-base font-semibold text-white tracking-wider"
+        />
+        <TouchableOpacity onPress={() => navigation.navigate('Home')}
+          className="rounded-full p-3 m-1 bg-neutral-500"
+        >
+          <XMarkIcon size="25" color="white" />
+        </TouchableOpacity>
+      </View>
+
+      {/* resultado da pesquisa */}
+      {
+        loading ? (
+          <Loading />
+        ) : 
+          results?.length>0 ? (
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 15 }}
+              className="space-y-3"
+            >
+              <Text className="text-white font-semibold ml-1">Resultados ({results.length})</Text>
+              <View className="flex-row justify-between flex-wrap">
+                {
+                  results.map((item, index) => {
+                    return (
+                      <TouchableWithoutFeedback
+                        key={index}
+                        onPress={() => navigation.push("Movie", item)}
+                      >
+                        <View className="space-y-2 mb-4">
+                          <Image className="rounded-2xl"
+                            source={{ uri: image185(item?.poster_path) }}
+                            style={{ width: width * 0.44, height: height * 0.3 }}
+                          />
+                          <Text className="text-neutral-400 ml-1">
+                            {
+                              item?.title.length > 22 ? item?.title.slice(0, 22) + '...' : item.title
+                            }
+                          </Text>
+                        </View>
+                      </TouchableWithoutFeedback>
+                    )
+                  })
+                }
+              </View>
+            </ScrollView>
+          ) : (
+            <View className="flex-1 flex-col justify-center items-center">
+              <Text className="text-white text-center mb-7"
+                style={{ fontSize: 32, display: 'none' }}>Nenhum Resultado Encontrado</Text>
+              <Image className="h-96 w-96 rounded-2xl"
+                source={require('../assets/images/movieTime.jpg')}
+              />
+            </View>
+          )
+      }
+    </SafeAreaView>
+  )
+}
+
+
+
+Ultimos detalhes
+MovieScreen:
+      {/* Elenco */}
+      {cast.length > 0 && <Cast navigation={navigation} cast={cast} />}
+
+      {/* Filmes Similares */}
+      {similarMovies.length > 0 && <MovieList title="Filmes Similares" hideSeeAll={true} data={similarMovies} />}
+
+
+PersonScreen:
+      {personMovies.length > 0 && <MovieList title={'Filmes'} hideSeeAll={true} data={personMovies} />}

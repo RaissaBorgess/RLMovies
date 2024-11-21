@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "RLMovies",
-    "slug": "RLMovies",
+    "name": "GMovies",
+    "slug": "GMovies",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
